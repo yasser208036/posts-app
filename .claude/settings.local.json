@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(echo \"=== backend exit: $? ===\")",
+      "Bash(./node_modules/.bin/tsc --noEmit -p tsconfig.json)",
+      "Bash(echo \"=== frontend exit: $? ===\")"
+    ]
+  }
+}

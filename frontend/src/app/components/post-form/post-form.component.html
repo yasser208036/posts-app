@@ -1,0 +1,208 @@
+<div class="animate-fade-in max-w-2xl mx-auto">
+  <!-- Loading State (Skeleton) -->
+  <div
+    *ngIf="loading"
+    class="animate-pulse rounded-2xl border border-slate-200 bg-white p-8 space-y-6"
+  >
+    <div class="h-6 w-1/4 rounded bg-slate-200"></div>
+    <div class="space-y-2">
+      <div class="h-4 w-12 rounded bg-slate-200"></div>
+      <div class="h-10 w-full rounded bg-slate-200"></div>
+    </div>
+    <div class="space-y-2">
+      <div class="h-4 w-12 rounded bg-slate-200"></div>
+      <div class="h-28 w-full rounded bg-slate-200"></div>
+    </div>
+    <div class="flex gap-3 pt-4">
+      <div class="h-10 w-20 rounded bg-slate-200"></div>
+      <div class="h-10 w-20 rounded bg-slate-200"></div>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <form
+    *ngIf="!loading"
+    [formGroup]="form"
+    (ngSubmit)="onSubmit()"
+    class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm"
+  >
+    <!-- Title / Mode Header -->
+    <div class="border-b border-slate-100 pb-5 mb-6">
+      <h2 class="text-xl font-bold text-slate-900">
+        {{ postId ? "Edit Post" : "Create New Post" }}
+      </h2>
+      <p class="text-xs text-slate-500 mt-1">
+        {{
+          postId
+            ? "Update details of your existing post."
+            : "Share a new thought, tutorial, or announcement."
+        }}
+      </p>
+    </div>
+
+    <!-- Inputs Section -->
+    <div class="space-y-5">
+      <!-- Title Input -->
+      <div>
+        <label
+          for="title"
+          class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >Post Title</label
+        >
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          placeholder="e.g., Understanding Angular Signals"
+          [class.border-red-300]="
+            (title.touched && title.invalid) || serverErrors['title']
+          "
+          [class.focus:ring-red-200]="
+            (title.touched && title.invalid) || serverErrors['title']
+          "
+          [class.focus:border-red-500]="
+            (title.touched && title.invalid) || serverErrors['title']
+          "
+          class="block w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all duration-200"
+        />
+
+        <!-- Validation Messages -->
+        <div class="mt-1.5 space-y-1">
+          <p
+            class="text-xs text-red-600 flex items-center gap-1 font-medium"
+            *ngIf="title.touched && title.hasError('required')"
+          >
+            Title is required.
+          </p>
+          <p
+            class="text-xs text-red-600 flex items-center gap-1 font-medium"
+            *ngIf="title.touched && title.hasError('minlength')"
+          >
+            Title must be at least 3 characters.
+          </p>
+          <p
+            class="text-xs text-red-600 flex items-center gap-1 font-medium"
+            *ngIf="serverErrors['title']"
+          >
+            {{ serverErrors["title"] }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Body Input -->
+      <div>
+        <label
+          for="body"
+          class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >Post Content</label
+        >
+        <textarea
+          id="body"
+          formControlName="body"
+          rows="6"
+          placeholder="Write your article body here... (minimum 10 characters)"
+          [class.border-red-300]="
+            (body.touched && body.invalid) || serverErrors['body']
+          "
+          [class.focus:ring-red-200]="
+            (body.touched && body.invalid) || serverErrors['body']
+          "
+          [class.focus:border-red-500]="
+            (body.touched && body.invalid) || serverErrors['body']
+          "
+          class="block w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all duration-200 resize-none"
+        ></textarea>
+
+        <!-- Validation Messages -->
+        <div class="mt-1.5 space-y-1">
+          <p
+            class="text-xs text-red-600 flex items-center gap-1 font-medium"
+            *ngIf="body.touched && body.hasError('required')"
+          >
+            Content body is required.
+          </p>
+          <p
+            class="text-xs text-red-600 flex items-center gap-1 font-medium"
+            *ngIf="body.touched && body.hasError('minlength')"
+          >
+            Content body must be at least 10 characters.
+          </p>
+          <p
+            class="text-xs text-red-600 flex items-center gap-1 font-medium"
+            *ngIf="serverErrors['body']"
+          >
+            {{ serverErrors["body"] }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generic Error Notification -->
+    <div
+      *ngIf="errorMessage"
+      class="mt-5 rounded-xl border border-red-100 bg-red-50 p-4 text-red-800 flex items-center gap-2"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+        stroke="currentColor"
+        class="h-5 w-5 text-red-600 shrink-0"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+        />
+      </svg>
+      <span class="text-sm font-medium">{{ errorMessage }}</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div
+      class="mt-8 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-slate-100 pt-6"
+    >
+      <!-- Cancel -->
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="w-full sm:w-auto text-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors focus-visible:outline-2 focus-visible:outline-indigo-600"
+      >
+        Cancel
+      </button>
+
+      <!-- Save / Submit -->
+      <button
+        type="submit"
+        [disabled]="submitting || form.invalid"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-indigo-100 hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+      >
+        <!-- Spinner on Submitting -->
+        <svg
+          *ngIf="submitting"
+          class="animate-spin -ml-1 mr-1 h-4 w-4 text-white"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        <span>{{
+          submitting ? "Saving..." : postId ? "Update Post" : "Publish Post"
+        }}</span>
+      </button>
+    </div>
+  </form>
+</div>
