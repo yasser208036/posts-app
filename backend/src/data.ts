@@ -1,16 +1,9 @@
-import { randomUUID } from 'crypto';
-import { Post, PostInput } from './types';
+import { randomUUID } from "crypto";
+import { Post, PostInput } from "./types";
+import { initialPosts } from "./initialPosts";
 
 // In-memory mock database
-let posts: Post[] = [
-  {
-    id: randomUUID(),
-    title: 'Welcome to the Posts App',
-    body: 'This is a seeded post so the list is not empty on first run.',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+let posts: Post[] = [...initialPosts];
 
 export const getPaginatedPosts = (
   page: number,
