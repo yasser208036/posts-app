@@ -19,6 +19,49 @@
     </div>
   </div>
 
+  <!-- Filter bar -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <div class="flex-1">
+      <label class="block text-xs font-semibold text-slate-500 mb-1"
+        >Search title</label
+      >
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Search posts by title…"
+        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+      />
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-500 mb-1"
+        >From</label
+      >
+      <input
+        type="date"
+        [(ngModel)]="startDate"
+        (ngModelChange)="onDateChange()"
+        class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+      />
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-500 mb-1">To</label>
+      <input
+        type="date"
+        [(ngModel)]="endDate"
+        (ngModelChange)="onDateChange()"
+        class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+      />
+    </div>
+    <button
+      *ngIf="hasActiveFilters"
+      (click)="clearFilters()"
+      class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+    >
+      Clear
+    </button>
+  </div>
+
   <!-- Loading State (Modern Skeleton Loaders) -->
   <div *ngIf="loading" class="grid gap-6 md:grid-cols-2">
     <div
@@ -129,7 +172,7 @@
           <!-- Edit button -->
           <button
             (click)="openEditModal(post.id)"
-            class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600"
+            class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors focus-visible:outline-2 focus-visible:outline-indigo-600"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -151,7 +194,7 @@
           <!-- Delete button -->
           <button
             (click)="deletePost(post.id)"
-            class="inline-flex items-center gap-1 rounded-lg border border-transparent bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 hover:text-red-950 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600"
+            class="inline-flex items-center gap-1 rounded-lg border border-transparent bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 hover:text-red-950 transition-colors focus-visible:outline-2 focus-visible:outline-red-600"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -227,7 +270,7 @@
 
   <!-- Empty State -->
   <div
-    *ngIf="!loading && posts.length === 0 && !errorMessage"
+    *ngIf="!loading && posts.length === 0 && !errorMessage && !hasActiveFilters"
     class="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center shadow-sm"
   >
     <div
@@ -256,7 +299,7 @@
     <div class="mt-6">
       <button
         (click)="openCreateModal()"
-        class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"
+        class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -273,6 +316,26 @@
           />
         </svg>
         <span>Write your first post</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- No results for active filters -->
+  <div
+    *ngIf="!loading && posts.length === 0 && !errorMessage && hasActiveFilters"
+    class="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center shadow-sm"
+  >
+    <h3 class="mt-4 text-base font-semibold text-slate-900">No posts found</h3>
+    <p class="mt-2 text-sm text-slate-500 max-w-sm mx-auto">
+      No posts match your search or date filter. Try a different keyword or
+      clear the filters.
+    </p>
+    <div class="mt-6">
+      <button
+        (click)="clearFilters()"
+        class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors cursor-pointer"
+      >
+        Clear filters
       </button>
     </div>
   </div>

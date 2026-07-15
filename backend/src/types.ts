@@ -17,3 +17,9 @@ export interface PaginatedResponse<T> {
   page: number;
   totalPages: number;
 }
+
+export interface PostFilters {
+  title?: string;
+  startDate?: string; // YYYY-MM-DD (inclusive, start of day UTC)
+  endDate?: string; // YYYY-MM-DD (inclusive, end of day UTC)
+}

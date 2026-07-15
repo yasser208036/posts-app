@@ -21,7 +21,7 @@ import { CreatePostTriggerService } from "./services/create-post-trigger.service
             class="group flex items-center gap-2.5 transition-all"
           >
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-md shadow-indigo-200 transition-all group-hover:scale-105 group-hover:shadow-indigo-300"
+              class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-violet-600 shadow-md shadow-indigo-200 transition-all group-hover:scale-105 group-hover:shadow-indigo-300"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -54,7 +54,7 @@ import { CreatePostTriggerService } from "./services/create-post-trigger.service
           <div class="flex items-center gap-4">
             <button
               (click)="openNewPost()"
-              class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-indigo-100 hover:bg-indigo-500 hover:shadow-md hover:shadow-indigo-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all duration-200 active:scale-[0.98]"
+              class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-indigo-100 hover:bg-indigo-500 hover:shadow-md hover:shadow-indigo-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all duration-200 active:scale-[0.98]"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
