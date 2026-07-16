@@ -1,14 +1,16 @@
-import express from 'express';
-import cors from 'cors';
-import postsRouter from './routes/posts.routes';
-import { notFoundHandler, errorHandler } from './middleware/errorHandler';
+import express from "express";
+import cors from "cors";
+import postsRouter from "./routes/posts.routes";
+import authRouter from "./routes/auth.routes";
+import { notFoundHandler, errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/posts', postsRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/posts", postsRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

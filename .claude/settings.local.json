@@ -4,7 +4,10 @@
       "Bash(./node_modules/.bin/tsc --noEmit)",
       "Bash(echo \"=== backend exit: $? ===\")",
       "Bash(./node_modules/.bin/tsc --noEmit -p tsconfig.json)",
-      "Bash(echo \"=== frontend exit: $? ===\")"
+      "Bash(echo \"=== frontend exit: $? ===\")",
+      "Bash(ls \"$\\(npm root -g\\)/squad-kit\")",
+      "Read(//home/yasser-mohamed/backend/src/middleware/**)",
+      "Read(//home/yasser-mohamed/backend/src/**)"
     ]
   }
 }

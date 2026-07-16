@@ -1,11 +1,18 @@
 import { Component } from "@angular/core";
-import { RouterOutlet, RouterLink, Router } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterOutlet,
+} from "@angular/router";
 import { CreatePostTriggerService } from "./services/create-post-trigger.service";
+import { AuthService } from "./services/auth.service";
 
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [RouterOutlet, RouterLink],
+  imports: [CommonModule, RouterOutlet, RouterLink],
   template: `
     <div class="min-h-screen flex flex-col bg-slate-50">
       <!-- Premium Glassmorphism Navbar -->
@@ -53,6 +60,7 @@ import { CreatePostTriggerService } from "./services/create-post-trigger.service
           <!-- Navigation Actions -->
           <div class="flex items-center gap-4">
             <button
+              *ngIf="!isAuthPage"
               (click)="openNewPost()"
               class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-indigo-100 hover:bg-indigo-500 hover:shadow-md hover:shadow-indigo-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all duration-200 active:scale-[0.98]"
             >
@@ -72,6 +80,37 @@ import { CreatePostTriggerService } from "./services/create-post-trigger.service
               </svg>
               <span>New Post</span>
             </button>
+
+            <!-- Auth UI -->
+            <div class="hidden sm:flex items-center gap-3">
+              <ng-container *ngIf="userName; else authLinks">
+                <div class="text-sm text-slate-700 font-medium">
+                  {{ userName }}
+                </div>
+                <button
+                  type="button"
+                  (click)="logout()"
+                  class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors focus-visible:outline-2 focus-visible:outline-indigo-600"
+                >
+                  Logout
+                </button>
+              </ng-container>
+
+              <ng-template #authLinks>
+                <a
+                  routerLink="/login"
+                  class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                >
+                  Login
+                </a>
+                <a
+                  routerLink="/signup"
+                  class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors"
+                >
+                  Sign up
+                </a>
+              </ng-template>
+            </div>
           </div>
         </div>
       </header>
@@ -95,15 +134,34 @@ import { CreatePostTriggerService } from "./services/create-post-trigger.service
   `,
 })
 export class AppComponent {
+  userName: string | null = null;
+  isAuthPage = false;
+
   constructor(
     private createTrigger: CreatePostTriggerService,
     private router: Router,
-  ) {}
+    private auth: AuthService,
+  ) {
+    this.auth.user$.subscribe((u) => (this.userName = u?.name ?? null));
+
+    // Hide "New Post" on auth pages (/login, /signup)
+    this.isAuthPage =
+      this.router.url.startsWith("/login") ||
+      this.router.url.startsWith("/signup");
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        const url = event.urlAfterRedirects ?? event.url;
+        this.isAuthPage = url.startsWith("/login") || url.startsWith("/signup");
+      }
+    });
+  }
 
   openNewPost(): void {
-    // Navigate to root first, then trigger the modal once navigation settles —
-    // the trigger Subject has no replay, so PostListComponent must be subscribed
-    // before we emit. (navigate resolves immediately when already at '/'.)
     this.router.navigate(["/"]).then(() => this.createTrigger.open());
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigate(["/login"]);
   }
 }
