@@ -4,6 +4,7 @@ export interface Post {
   body: string;
   createdAt?: string;
   updatedAt?: string;
+  userId?: string;
 }
 
 export interface PostInput {

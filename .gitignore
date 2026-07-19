@@ -1,3 +1,5 @@
+.env
+
 # Managed by squad-kit — do not edit this block
 .squad/secrets.yaml
 .squad/stories/**/attachments/

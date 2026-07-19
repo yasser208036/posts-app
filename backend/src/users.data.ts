@@ -1,31 +1,49 @@
-import { randomUUID } from "crypto";
+import { Prisma } from "@prisma/client";
+import { prisma } from "./prisma";
 import { AuthProvider, PublicUser, User } from "./types";
 
-// In-memory mock database
-let users: User[] = [];
+// Prisma returns Date for createdAt and a plain string for provider; the app
+// contract is an ISO string and the AuthProvider union. Use the generated
+// payload type so a new schema column surfaces here as an error rather than
+// being silently dropped.
+function toUser(row: Prisma.UserGetPayload<{}>): User {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    passwordHash: row.passwordHash,
+    provider: row.provider as AuthProvider,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
 
-export const findUserByEmail = (email: string): User | undefined =>
-  users.find((u) => u.email === email.trim().toLowerCase());
+export const findUserByEmail = async (email: string): Promise<User | null> => {
+  const row = await prisma.user.findUnique({
+    where: { email: email.trim().toLowerCase() },
+  });
+  return row ? toUser(row) : null;
+};
 
-export const findUserById = (id: string): User | undefined =>
-  users.find((u) => u.id === id);
+export const findUserById = async (id: string): Promise<User | null> => {
+  const row = await prisma.user.findUnique({ where: { id } });
+  return row ? toUser(row) : null;
+};
 
-export const createUser = (input: {
+export const createUser = async (input: {
   name: string;
   email: string;
   passwordHash: string | null;
   provider: AuthProvider;
-}): User => {
-  const user: User = {
-    id: randomUUID(),
-    name: input.name.trim(),
-    email: input.email.trim().toLowerCase(),
-    passwordHash: input.passwordHash,
-    provider: input.provider,
-    createdAt: new Date().toISOString(),
-  };
-  users.push(user);
-  return user;
+}): Promise<User> => {
+  const row = await prisma.user.create({
+    data: {
+      name: input.name.trim(),
+      email: input.email.trim().toLowerCase(),
+      passwordHash: input.passwordHash,
+      provider: input.provider,
+    },
+  });
+  return toUser(row);
 };
 
 export const toPublicUser = (user: User): PublicUser => ({

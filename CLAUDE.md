@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | Layer    | Tech                                                        | Port  |
 |----------|-------------------------------------------------------------|-------|
-| Backend  | Node.js + Express 4 + TypeScript, in-memory data (no DB)    | :3000 |
+| Backend  | Node.js + Express 4 + TypeScript, PostgreSQL via Prisma   | :3000 |
 | Frontend | Angular 20 (standalone components, zone.js change detection) | :4200 |
 | Auth     | JWT (7d) + bcryptjs, Google Sign-In (google-auth-library)   |       |
 | Styling  | Tailwind CSS v4 (`@tailwindcss/postcss`), no SCSS           |       |
@@ -35,6 +35,10 @@ building (`tsc` / `ng build`) and exercising the running app.
 Auth reads these from `process.env` with insecure dev fallbacks — set them for
 anything real:
 
+- `DATABASE_URL` — PostgreSQL connection string used by Prisma. Required; a
+  missing or unreachable DB is a hard failure (queries throw → 500). Set in
+  `backend/.env` (git-ignored). Example:
+  `postgresql://postgres:postgres@localhost:5432/posts_app?schema=public`.
 - `JWT_SECRET` — token signing secret (falls back to `dev-only-insecure-secret`).
 - `GOOGLE_CLIENT_ID` — must match the frontend `environment.googleClientId` for
   Google Sign-In to verify tokens.
@@ -47,16 +51,19 @@ anything real:
 Request flow: `server.ts` → `app.ts` (mounts `/api/auth` and `/api/posts`, then
 `notFoundHandler` + `errorHandler`) → route → middleware → thin controller → data module.
 
-- **Two in-memory stores, both reset on restart:** `data.ts` (posts, seeded from
-  `initialPosts.ts`) and `users.data.ts` (users, starts empty). No database.
+- **Two Prisma-backed data modules:** `data.ts` (posts) and `users.data.ts`
+  (users), both reading/writing PostgreSQL via the shared client in `prisma.ts`.
+  Data persists across restarts. Posts are owner-scoped by `userId`.
 - **Controllers stay thin** — they call the data modules. Post validation lives
   only in `middleware/validatePost.ts`; auth validation in `middleware/validateAuth.ts`.
 - **Auth is JWT bearer tokens.** `auth/jwt.ts` signs/verifies, `auth/password.ts`
   hashes/compares with bcrypt. `middleware/requireAuth.ts` reads
   `Authorization: Bearer <token>`, verifies it, confirms the user still exists,
   and sets `req.userId` (typed via a global Express augmentation in that file).
-- **Post mutations require auth; reads are public.** In `posts.routes.ts`,
-  `POST`/`PUT`/`DELETE` are gated by `requireAuth`; `GET /` and `GET /:id` are not.
+- **All post routes require auth and are owner-scoped.** In `posts.routes.ts`,
+  every route (`GET`/`POST`/`PUT`/`DELETE`) is gated by `requireAuth`; handlers
+  scope by `req.userId`, so a user only ever sees/edits/deletes their own posts.
+  Another user's post id returns **404** (never 403 — existence is not leaked).
 - **Never leak `passwordHash`.** Return `PublicUser` (via `users.toPublicUser`),
   never the raw `User`. Emails are stored trimmed + lowercased.
 - **Google accounts have `passwordHash: null`** and `provider: "google"`. Login
@@ -92,8 +99,8 @@ Base URL: `http://localhost:3000/api`
 
 | Method | Path   | Auth | Body            | Success             | Error                            |
 |--------|--------|------|-----------------|---------------------|----------------------------------|
-| GET    | /      | —    | — (query below) | 200 `Paginated<Post>` | 500                            |
-| GET    | /:id   | —    | —               | 200 `Post`          | 404 `{ message }`                |
+| GET    | /      | ✅   | — (query below) | 200 `Paginated<Post>` | 401 · 500                    |
+| GET    | /:id   | ✅   | —               | 200 `Post`          | 401 · 404 `{ message }`          |
 | POST   | /      | ✅   | `{ title, body }` | 201 `Post`        | 400 `{ message, errors }` · 401 · 500 |
 | PUT    | /:id   | ✅   | `{ title, body }` | 200 `Post`        | 400 · 401 · 404 · 500            |
 | DELETE | /:id   | ✅   | —               | 204 (no body)       | 401 · 404 · 500                  |
@@ -161,8 +168,10 @@ the server `errors` object next to the matching field.
 
 - **zone.js polyfill is required.** `angular.json` needs `"polyfills": ["zone.js"]`.
   Without it the app renders blank (NG0908).
-- **In-memory data resets on backend restart.** Posts reseed from `initialPosts.ts`;
-  users start empty (you must sign up again after every restart).
+- **Data persists in PostgreSQL.** No seed data — the DB starts empty. Requires a
+  reachable `DATABASE_URL`; run `pnpm prisma migrate dev` to create the schema.
+  Posts are owner-scoped, so `GET /api/posts` requires auth and returns only the
+  caller's own posts (401 without a valid token).
 - **CORS is wide open** (`cors()` no config) — local dev only.
 - **Google Sign-In needs matching client IDs** on backend (`GOOGLE_CLIENT_ID`
   env) and frontend (`environment.googleClientId`), plus the GSI `<script>` in

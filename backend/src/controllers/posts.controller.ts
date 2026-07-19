@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import * as db from "../data";
 
-export function listPosts(req: Request, res: Response, next: NextFunction) {
+export async function listPosts(req: Request, res: Response, next: NextFunction) {
   try {
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(
@@ -22,7 +22,7 @@ export function listPosts(req: Request, res: Response, next: NextFunction) {
       singleDate ??
       (typeof req.query.endDate === "string" ? req.query.endDate : undefined);
 
-    const { data, total } = db.getPaginatedPosts(page, limit, {
+    const { data, total } = await db.getPaginatedPosts(req.userId!, page, limit, {
       title,
       startDate,
       endDate,
@@ -34,9 +34,9 @@ export function listPosts(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function getPost(req: Request, res: Response, next: NextFunction) {
+export async function getPost(req: Request, res: Response, next: NextFunction) {
   try {
-    const post = db.getPostById(req.params.id);
+    const post = await db.getPostById(req.userId!, req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });
     res.status(200).json(post);
   } catch (err) {
@@ -44,20 +44,20 @@ export function getPost(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function createPost(req: Request, res: Response, next: NextFunction) {
+export async function createPost(req: Request, res: Response, next: NextFunction) {
   try {
     const { title, body } = req.body;
-    const post = db.createPost({ title, body });
+    const post = await db.createPost(req.userId!, { title, body });
     res.status(201).json(post);
   } catch (err) {
     next(err);
   }
 }
 
-export function updatePost(req: Request, res: Response, next: NextFunction) {
+export async function updatePost(req: Request, res: Response, next: NextFunction) {
   try {
     const { title, body } = req.body;
-    const updated = db.updatePost(req.params.id, { title, body });
+    const updated = await db.updatePost(req.userId!, req.params.id, { title, body });
     if (!updated) return res.status(404).json({ message: "Post not found" });
     res.status(200).json(updated);
   } catch (err) {
@@ -65,9 +65,9 @@ export function updatePost(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function removePost(req: Request, res: Response, next: NextFunction) {
+export async function removePost(req: Request, res: Response, next: NextFunction) {
   try {
-    const deleted = db.deletePost(req.params.id);
+    const deleted = await db.deletePost(req.userId!, req.params.id);
     if (!deleted) return res.status(404).json({ message: "Post not found" });
     res.status(204).send();
   } catch (err) {

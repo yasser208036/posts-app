@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { Prisma } from "@prisma/client";
 import { OAuth2Client } from "google-auth-library";
 import * as users from "../users.data";
 import { hashPassword, verifyPassword } from "../auth/password";
@@ -22,7 +23,7 @@ export async function signup(req: Request, res: Response, next: NextFunction) {
   try {
     const { name, email, password } = req.body;
 
-    const existing = users.findUserByEmail(email);
+    const existing = await users.findUserByEmail(email);
     if (existing) {
       return res.status(409).json({
         message: "Validation failed",
@@ -31,7 +32,7 @@ export async function signup(req: Request, res: Response, next: NextFunction) {
     }
 
     const passwordHash = await hashPassword(password);
-    const user = users.createUser({
+    const user = await users.createUser({
       name,
       email,
       passwordHash,
@@ -40,6 +41,18 @@ export async function signup(req: Request, res: Response, next: NextFunction) {
 
     res.status(201).json(authResponse(user));
   } catch (err) {
+    // The findUserByEmail check above is not atomic; a concurrent signup can
+    // slip past it and trip the unique-email constraint. Translate that to the
+    // documented 409 instead of a generic 500.
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002"
+    ) {
+      return res.status(409).json({
+        message: "Validation failed",
+        errors: { email: "Email already exists" },
+      });
+    }
     next(err);
   }
 }
@@ -48,7 +61,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = req.body;
 
-    const user = users.findUserByEmail(email);
+    const user = await users.findUserByEmail(email);
     if (!user || !user.passwordHash) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -87,9 +100,9 @@ export async function googleLogin(
       return res.status(401).json({ message: "Invalid Google token" });
     }
 
-    let user = users.findUserByEmail(payload.email);
+    let user = await users.findUserByEmail(payload.email);
     if (!user) {
-      user = users.createUser({
+      user = await users.createUser({
         name: payload.name ?? payload.email,
         email: payload.email,
         passwordHash: null,
@@ -103,14 +116,10 @@ export async function googleLogin(
   }
 }
 
-export function me(req: Request, res: Response, next: NextFunction) {
-  try {
-    const user = req.userId ? users.findUserById(req.userId) : undefined;
-    if (!user) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
-    res.status(200).json(users.toPublicUser(user));
-  } catch (err) {
-    next(err);
+export function me(req: Request, res: Response) {
+  // requireAuth already loaded and verified the user; no second DB query.
+  if (!req.user) {
+    return res.status(401).json({ message: "Authentication required" });
   }
+  res.status(200).json(users.toPublicUser(req.user));
 }

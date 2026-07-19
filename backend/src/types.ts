@@ -4,6 +4,7 @@ export interface Post {
   body: string;
   createdAt: string;
   updatedAt: string;
+  userId: string; // owner (FK to User.id)
 }
 
 export interface PostInput {
@@ -20,8 +21,8 @@ export interface PaginatedResponse<T> {
 
 export interface PostFilters {
   title?: string;
-  startDate?: string; // YYYY-MM-DD (inclusive, start of day UTC)
-  endDate?: string; // YYYY-MM-DD (inclusive, end of day UTC)
+  startDate?: string; // YYYY-MM-DD (inclusive, start of day, local time)
+  endDate?: string; // YYYY-MM-DD (inclusive, end of day, local time)
 }
 
 export type AuthProvider = "local" | "google";

@@ -7,7 +7,16 @@
       "Bash(echo \"=== frontend exit: $? ===\")",
       "Bash(ls \"$\\(npm root -g\\)/squad-kit\")",
       "Read(//home/yasser-mohamed/backend/src/middleware/**)",
-      "Read(//home/yasser-mohamed/backend/src/**)"
+      "Read(//home/yasser-mohamed/backend/src/**)",
+      "Bash(pnpm prisma *)",
+      "Bash(pnpm build *)",
+      "Bash(pg_isready -h localhost -p 5432)",
+      "Bash(command -v docker)",
+      "Bash(docker compose *)",
+      "Bash(docker info *)",
+      "Bash(git check-ignore *)",
+      "Bash(node -e ' *)",
+      "Bash(pnpm add *)"
     ]
   }
 }

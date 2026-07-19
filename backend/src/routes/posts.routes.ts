@@ -11,8 +11,8 @@ import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
-router.get("/", listPosts);
-router.get("/:id", getPost);
+router.get("/", requireAuth, listPosts);
+router.get("/:id", requireAuth, getPost);
 router.post("/", requireAuth, validatePost, createPost);
 router.put("/:id", requireAuth, validatePost, updatePost);
 router.delete("/:id", requireAuth, removePost);
