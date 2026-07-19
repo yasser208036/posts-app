@@ -17,10 +17,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
+# Postgres (from repo root) — starts the DB that DATABASE_URL points to
+docker compose up -d                        # postgres:16 on :5432 (posts_app / postgres:postgres)
+
 # Backend
 cd backend && pnpm install && pnpm dev     # ts-node-dev → :3000
 cd backend && pnpm build                   # tsc → dist/
 cd backend && pnpm start                   # node dist/server.js
+cd backend && pnpm prisma:migrate          # prisma migrate dev — create/apply schema
+cd backend && pnpm prisma:generate         # regenerate Prisma client
 
 # Frontend
 cd frontend && pnpm install && pnpm start  # ng serve → :4200
