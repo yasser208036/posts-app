@@ -16,7 +16,9 @@
       "Bash(docker info *)",
       "Bash(git check-ignore *)",
       "Bash(node -e ' *)",
-      "Bash(pnpm add *)"
+      "Bash(pnpm add *)",
+      "Bash(npm root *)",
+      "Bash(ls \"$\\(npm root -g\\)/squad-kit/templates/prompts/\")"
     ]
   }
 }

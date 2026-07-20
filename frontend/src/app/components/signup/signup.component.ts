@@ -1,27 +1,13 @@
-import { Component, AfterViewInit } from "@angular/core";
+import { Component, AfterViewInit, OnDestroy } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import {
-  AbstractControl,
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from "@angular/forms";
-import { Router, RouterLink } from "@angular/router";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Router } from "@angular/router";
 import { AuthService } from "../../services/auth.service";
-import { environment } from "../../../environments/environment";
-
-function trimmedMinLength(min: number) {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const trimmed = (control.value ?? "").toString().trim();
-    if (trimmed.length === 0) return { required: true };
-    return trimmed.length < min
-      ? { minlength: { requiredLength: min, actualLength: trimmed.length } }
-      : null;
-  };
-}
-
-declare const google: any;
+import { trimmedMinLength } from "../../utils/validators";
+import {
+  isGoogleClientIdPlaceholder,
+  initializeGoogleSignIn,
+} from "../../utils/google-auth";
 
 @Component({
   selector: "app-signup",
@@ -29,7 +15,7 @@ declare const google: any;
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: "./signup.component.html",
 })
-export class SignupComponent implements AfterViewInit {
+export class SignupComponent implements AfterViewInit, OnDestroy {
   form = this.fb.group({
     name: ["", [Validators.required, trimmedMinLength(2)]],
     email: ["", [Validators.required, Validators.email]],
@@ -39,6 +25,7 @@ export class SignupComponent implements AfterViewInit {
   submitting = false;
   errorMessage = "";
   serverErrors: Record<string, string> = {};
+  private cleanupGis: (() => void) | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -47,23 +34,33 @@ export class SignupComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    if (!google?.accounts?.id) return;
+    if (isGoogleClientIdPlaceholder()) {
+      console.error(
+        "Google Identity Services: googleClientId is placeholder. Update frontend/src/environments/environment.ts",
+      );
+      return;
+    }
 
-    google.accounts.id.initialize({
-      client_id: environment.googleClientId,
-      callback: (response: any) => {
-        const credential = response?.credential;
-        if (!credential) return;
+    this.cleanupGis = initializeGoogleSignIn(
+      (credential) => {
         this.auth.googleLogin(credential).subscribe({
           next: () => this.router.navigate(["/"]),
+          error: (err) => {
+            console.error("googleLogin error:", err);
+            this.errorMessage = "Google login failed. Please try again.";
+          },
         });
       },
-    });
+      (err) => {
+        console.error(err);
+        this.errorMessage =
+          "Failed to load Google Identity Services. Check your internet connection and googleClientId configuration.";
+      },
+    );
+  }
 
-    google.accounts.id.renderButton(document.getElementById("googleBtn"), {
-      theme: "outline",
-      size: "large",
-    });
+  ngOnDestroy(): void {
+    this.cleanupGis?.();
   }
 
   get name() {

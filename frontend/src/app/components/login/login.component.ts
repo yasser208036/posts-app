@@ -1,27 +1,14 @@
-import { Component, AfterViewInit } from "@angular/core";
+import { Component, AfterViewInit, OnDestroy } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import {
-  AbstractControl,
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from "@angular/forms";
-import { Router, RouterLink } from "@angular/router";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Router } from "@angular/router";
 import { AuthService } from "../../services/auth.service";
 import { environment } from "../../../environments/environment";
-
-function trimmedMinLength(min: number) {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const trimmed = (control.value ?? "").toString().trim();
-    if (trimmed.length === 0) return { required: true };
-    return trimmed.length < min
-      ? { minlength: { requiredLength: min, actualLength: trimmed.length } }
-      : null;
-  };
-}
-
-declare const google: any;
+import { trimmedMinLength } from "../../utils/validators";
+import {
+  isGoogleClientIdPlaceholder,
+  initializeGoogleSignIn,
+} from "../../utils/google-auth";
 
 @Component({
   selector: "app-login",
@@ -29,8 +16,7 @@ declare const google: any;
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: "./login.component.html",
 })
-export class LoginComponent implements AfterViewInit {
-  private gisInitDone = false;
+export class LoginComponent implements AfterViewInit, OnDestroy {
   errorMessage = "";
   form = this.fb.group({
     email: ["", [Validators.required, Validators.email]],
@@ -39,6 +25,7 @@ export class LoginComponent implements AfterViewInit {
 
   submitting = false;
   serverErrors: Record<string, string> = {};
+  private cleanupGis: (() => void) | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -46,91 +33,36 @@ export class LoginComponent implements AfterViewInit {
     private router: Router,
   ) {}
 
-  private isGoogleClientIdPlaceholder(): boolean {
-    return (
-      !environment.googleClientId ||
-      environment.googleClientId.includes("REPLACE_WITH_GOOGLE_CLIENT_ID")
-    );
-  }
-
-  private loadGoogleIdentityServicesScript(): Promise<void> {
-    // If already available, resolve immediately
-    if ((window as any).google?.accounts?.id) return Promise.resolve();
-
-    const existing = document.querySelector<HTMLScriptElement>(
-      'script[data-gis="true"]',
-    );
-    if (existing) {
-      return new Promise((resolve, reject) => {
-        existing.addEventListener("load", () => resolve());
-        existing.addEventListener("error", () =>
-          reject(new Error("Failed to load Google Identity Services script")),
-        );
-      });
-    }
-
-    return new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.dataset.gis = "true";
-      script.onload = () => resolve();
-      script.onerror = () =>
-        reject(new Error("Failed to load Google Identity Services script"));
-      document.head.appendChild(script);
-    });
-  }
-
   ngAfterViewInit(): void {
-    if (this.gisInitDone) return;
-    this.gisInitDone = true;
-
-    if (this.isGoogleClientIdPlaceholder()) {
-      // Avoid triggering invalid_client repeatedly; show a clear hint
+    if (isGoogleClientIdPlaceholder()) {
       console.error(
         "Google Identity Services: googleClientId is placeholder. Update frontend/src/environments/environment.ts",
       );
       this.errorMessage =
-        "Google 로그인 غير متاح: تم استبدال googleClientId بقيمة placeholder. سجّل دخول Google يتطلب Google OAuth Client ID صحيح.";
+        "Google login is not available: googleClientId is a placeholder. Google login requires a valid Google OAuth Client ID.";
       return;
     }
 
-    this.loadGoogleIdentityServicesScript()
-      .then(() => {
-        if (!google?.accounts?.id) {
-          throw new Error("Google Identity Services SDK not available");
-        }
-
-        google.accounts.id.initialize({
-          client_id: environment.googleClientId,
-          callback: (response: any) => {
-            const credential = response?.credential;
-            if (!credential) return;
-
-            this.auth.googleLogin(credential).subscribe({
-              next: () => this.router.navigate(["/"]),
-              error: (err) => {
-                console.error("googleLogin error:", err);
-                this.errorMessage = "Google 로그인 فشل. حاول مرة أخرى.";
-              },
-            });
+    this.cleanupGis = initializeGoogleSignIn(
+      (credential) => {
+        this.auth.googleLogin(credential).subscribe({
+          next: () => this.router.navigate(["/"]),
+          error: (err) => {
+            console.error("googleLogin error:", err);
+            this.errorMessage = "Google login failed. Please try again.";
           },
         });
-
-        const btnEl = document.getElementById("googleBtn");
-        if (!btnEl) return;
-
-        google.accounts.id.renderButton(btnEl, {
-          theme: "outline",
-          size: "large",
-        });
-      })
-      .catch((err) => {
+      },
+      (err) => {
         console.error(err);
         this.errorMessage =
-          "فشل تحميل Google Identity Services. تأكد من اتصال الإنترنت وتهيئة googleClientId.";
-      });
+          "Failed to load Google Identity Services. Check your internet connection and googleClientId configuration.";
+      },
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.cleanupGis?.();
   }
 
   get email() {

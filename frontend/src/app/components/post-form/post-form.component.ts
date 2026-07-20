@@ -1,21 +1,17 @@
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { PostService } from "../../services/post.service";
-
-// Mirrors the backend (validatePost.ts): length is measured after trimming,
-// so whitespace-only input fails client-side just as it does server-side.
-function trimmedMinLength(min: number) {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const trimmed = (control.value ?? "").toString().trim();
-    // Whitespace-only is treated as empty, matching the backend's `required` rejection.
-    if (trimmed.length === 0) return { required: true };
-    return trimmed.length < min
-      ? { minlength: { requiredLength: min, actualLength: trimmed.length } }
-      : null;
-  };
-}
+import { trimmedMinLength } from "../../utils/validators";
 
 @Component({
   selector: "app-post-form",
@@ -47,37 +43,7 @@ export class PostFormComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
-    if (this.embedded) {
-      if (this.editPostId) {
-        this.postId = this.editPostId;
-        this.loading = true;
-        this.postService.getOne(this.editPostId).subscribe({
-          next: (post) => {
-            this.form.patchValue({ title: post.title, body: post.body });
-            this.loading = false;
-          },
-          error: () => {
-            this.errorMessage = "Failed to load post.";
-            this.loading = false;
-          },
-        });
-      }
-      return;
-    }
-    this.postId = this.route.snapshot.paramMap.get("id");
-    if (this.postId) {
-      this.loading = true;
-      this.postService.getOne(this.postId).subscribe({
-        next: (post) => {
-          this.form.patchValue({ title: post.title, body: post.body });
-          this.loading = false;
-        },
-        error: () => {
-          this.errorMessage = "Failed to load post.";
-          this.loading = false;
-        },
-      });
-    }
+    this.loadPostFromRoute();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -87,8 +53,36 @@ export class PostFormComponent implements OnInit, OnChanges {
       !changes["editPostId"].firstChange
     ) {
       this.resetForm();
-      this.ngOnInit();
+      this.loadPostFromRoute();
     }
+  }
+
+  private loadPostFromRoute(): void {
+    if (this.embedded) {
+      if (this.editPostId) {
+        this.loadPost(this.editPostId);
+      }
+      return;
+    }
+    const id = this.route.snapshot.paramMap.get("id");
+    if (id) {
+      this.loadPost(id);
+    }
+  }
+
+  private loadPost(id: string): void {
+    this.postId = id;
+    this.loading = true;
+    this.postService.getOne(id).subscribe({
+      next: (post) => {
+        this.form.patchValue({ title: post.title, body: post.body });
+        this.loading = false;
+      },
+      error: () => {
+        this.errorMessage = "Failed to load post.";
+        this.loading = false;
+      },
+    });
   }
 
   private resetForm(): void {

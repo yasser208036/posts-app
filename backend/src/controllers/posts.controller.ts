@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import * as db from "../data";
 
-export async function listPosts(req: Request, res: Response, next: NextFunction) {
+export async function listPosts(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(
@@ -11,22 +15,27 @@ export async function listPosts(req: Request, res: Response, next: NextFunction)
 
     const title =
       typeof req.query.title === "string" ? req.query.title : undefined;
-    const singleDate =
+    const date =
       typeof req.query.date === "string" ? req.query.date : undefined;
     const startDate =
-      singleDate ??
+      date ??
       (typeof req.query.startDate === "string"
         ? req.query.startDate
         : undefined);
     const endDate =
-      singleDate ??
+      date ??
       (typeof req.query.endDate === "string" ? req.query.endDate : undefined);
 
-    const { data, total } = await db.getPaginatedPosts(req.userId!, page, limit, {
-      title,
-      startDate,
-      endDate,
-    });
+    const { data, total } = await db.getPaginatedPosts(
+      req.userId!,
+      page,
+      limit,
+      {
+        title,
+        startDate,
+        endDate,
+      },
+    );
     const totalPages = Math.ceil(total / limit);
     res.status(200).json({ data, total, page, totalPages });
   } catch (err) {
@@ -44,7 +53,11 @@ export async function getPost(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export async function createPost(req: Request, res: Response, next: NextFunction) {
+export async function createPost(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const { title, body } = req.body;
     const post = await db.createPost(req.userId!, { title, body });
@@ -54,10 +67,17 @@ export async function createPost(req: Request, res: Response, next: NextFunction
   }
 }
 
-export async function updatePost(req: Request, res: Response, next: NextFunction) {
+export async function updatePost(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const { title, body } = req.body;
-    const updated = await db.updatePost(req.userId!, req.params.id, { title, body });
+    const updated = await db.updatePost(req.userId!, req.params.id, {
+      title,
+      body,
+    });
     if (!updated) return res.status(404).json({ message: "Post not found" });
     res.status(200).json(updated);
   } catch (err) {
@@ -65,7 +85,11 @@ export async function updatePost(req: Request, res: Response, next: NextFunction
   }
 }
 
-export async function removePost(req: Request, res: Response, next: NextFunction) {
+export async function removePost(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const deleted = await db.deletePost(req.userId!, req.params.id);
     if (!deleted) return res.status(404).json({ message: "Post not found" });
