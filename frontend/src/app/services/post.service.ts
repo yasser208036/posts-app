@@ -2,7 +2,14 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "../../environments/environment";
-import { Post, PostInput, PaginatedResponse } from "../models/post.model";
+import {
+  Post,
+  PostInput,
+  PaginatedResponse,
+  FeedPost,
+  Comment,
+  CommentInput,
+} from "../models/post.model";
 
 @Injectable({ providedIn: "root" })
 export class PostService {
@@ -14,7 +21,7 @@ export class PostService {
     page: number = 1,
     limit: number = 10,
     filters: { title?: string; startDate?: string; endDate?: string } = {},
-  ): Observable<PaginatedResponse<Post>> {
+  ): Observable<PaginatedResponse<FeedPost>> {
     let params = new HttpParams()
       .set("page", page.toString())
       .set("limit", limit.toString());
@@ -27,7 +34,7 @@ export class PostService {
     if (filters.endDate) {
       params = params.set("endDate", filters.endDate);
     }
-    return this.http.get<PaginatedResponse<Post>>(this.baseUrl, { params });
+    return this.http.get<PaginatedResponse<FeedPost>>(this.baseUrl, { params });
   }
 
   getOne(id: string): Observable<Post> {
@@ -44,5 +51,30 @@ export class PostService {
 
   remove(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  getComments(postId: string): Observable<Comment[]> {
+    return this.http.get<Comment[]>(`${this.baseUrl}/${postId}/comments`);
+  }
+
+  addComment(postId: string, input: CommentInput): Observable<Comment> {
+    return this.http.post<Comment>(`${this.baseUrl}/${postId}/comments`, input);
+  }
+
+  updateComment(
+    postId: string,
+    commentId: string,
+    body: string,
+  ): Observable<Comment> {
+    return this.http.put<Comment>(
+      `${this.baseUrl}/${postId}/comments/${commentId}`,
+      { body },
+    );
+  }
+
+  deleteComment(postId: string, commentId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/${postId}/comments/${commentId}`,
+    );
   }
 }

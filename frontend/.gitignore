@@ -1,5 +1,7 @@
 node_modules
 dist
+.angular
+.angular/cache
 
 # Managed by squad-kit — do not edit this block
 .squad/secrets.yaml

@@ -14,6 +14,7 @@ function toUser(row: Prisma.UserGetPayload<{}>): User {
     passwordHash: row.passwordHash,
     provider: row.provider as AuthProvider,
     createdAt: row.createdAt.toISOString(),
+    lastSeenAt: row.lastSeenAt ? row.lastSeenAt.toISOString() : null,
   };
 }
 
@@ -27,6 +28,11 @@ export const findUserByEmail = async (email: string): Promise<User | null> => {
 export const findUserById = async (id: string): Promise<User | null> => {
   const row = await prisma.user.findUnique({ where: { id } });
   return row ? toUser(row) : null;
+};
+
+// Stamps the caller's lastSeenAt to now; drives online presence.
+export const touchLastSeen = async (id: string): Promise<void> => {
+  await prisma.user.update({ where: { id }, data: { lastSeenAt: new Date() } });
 };
 
 export const createUser = async (input: {
@@ -51,3 +57,7 @@ export const toPublicUser = (user: User): PublicUser => ({
   name: user.name,
   email: user.email,
 });
+
+export const clearLastSeen = async (id: string): Promise<void> => {
+  await prisma.user.update({ where: { id }, data: { lastSeenAt: null } });
+};

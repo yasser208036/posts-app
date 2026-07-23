@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
+    "test": "jest",
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
@@ -16,7 +17,9 @@
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.6.0",
     "google-auth-library": "9.15.0",
+    "helmet": "^8.3.0",
     "jsonwebtoken": "9.0.2"
   },
   "devDependencies": {

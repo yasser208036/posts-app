@@ -1,9 +1,5 @@
-<div class="animate-fade-in max-w-md mx-auto">
-  <form
-    [formGroup]="form"
-    (ngSubmit)="onSubmit()"
-    class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm"
-  >
+<div class="animate-fade-in">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="border-b border-slate-100 pb-5 mb-6">
       <h2 class="text-xl font-bold text-slate-900">Sign up</h2>
       <p class="text-xs text-slate-500 mt-1">
@@ -168,16 +164,8 @@
     </div>
 
     <div
-      class="mt-8 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-slate-100 pt-6"
+      class="mt-8 flex items-center justify-end gap-3 border-t border-slate-100 pt-6"
     >
-      <button
-        type="button"
-        (click)="navigateToLogin()"
-        class="w-full sm:w-auto text-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors focus-visible:outline-2 focus-visible:outline-indigo-600"
-      >
-        Login
-      </button>
-
       <button
         type="submit"
         [disabled]="submitting || form.invalid"

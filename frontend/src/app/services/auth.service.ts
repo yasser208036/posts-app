@@ -51,6 +51,11 @@ export class AuthService {
   }
 
   logout(): void {
+    if (this.tokenValue) {
+      this.http
+        .post(`${environment.apiUrl}/presence/logout`, {})
+        .subscribe({ error: () => {} });
+    }
     this.tokenValue = null;
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);

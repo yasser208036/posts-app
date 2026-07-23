@@ -8,13 +8,18 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  passwordHash String?  // null for google-only accounts
-  provider     String   // "local" | "google"
-  createdAt    DateTime @default(now())
-  posts        Post[]
+  id                     String                   @id @default(uuid())
+  name                   String
+  email                  String                   @unique
+  passwordHash           String? // null for google-only accounts
+  provider               String // "local" | "google"
+  createdAt              DateTime                 @default(now())
+  lastSeenAt             DateTime? // null until first heartbeat; drives online status
+  posts                  Post[]
+  comments               Comment[]
+  sentRequests           FriendRequest[]          @relation("SentRequests")
+  receivedRequests       FriendRequest[]          @relation("ReceivedRequests")
+  notificationDismissals NotificationDismissal[]
 }
 
 model Post {
@@ -25,7 +30,56 @@ model Post {
   updatedAt DateTime @updatedAt
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments  Comment[]
 
   @@index([userId])
   @@index([createdAt])
 }
+
+model Comment {
+  id        String    @id @default(uuid())
+  body      String
+  createdAt DateTime  @default(now())
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  dismissals NotificationDismissal[]
+
+  @@index([postId])
+  @@index([parentId])
+}
+
+
+model FriendRequest {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     String   @default("pending") // "pending" | "accepted" | "rejected"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  sender     User     @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([receiverId, status])
+  @@index([senderId, status])
+}
+
+// Records that a user opened (and thereby dismissed) a comment/reply
+// notification, so it stops surfacing in their feed. Keyed by (userId, commentId).
+model NotificationDismissal {
+  id          String   @id @default(uuid())
+  userId      String
+  commentId   String
+  dismissedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment     Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([userId])
+}
+

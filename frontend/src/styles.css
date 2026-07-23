@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Outfit", "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans:
+    "Outfit", "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --color-brand-50: #eef2ff;
   --color-brand-100: #e0e7ff;
   --color-brand-500: #6366f1;
@@ -21,8 +23,17 @@ body {
 }
 
 /* Custom styles for animations if needed */
+/*
+ * Note: `forwards` is intentionally omitted. Retaining the final keyframe would
+ * leave `transform: translateY(0)` applied, and any lingering transform turns the
+ * element into the containing block for `position: fixed` descendants — which
+ * broke the modal (it centered inside the tall content column and slid off-screen
+ * instead of centering in the viewport). Reverting to the base style after the
+ * animation (opacity: 1, no transform) keeps the fade-in while freeing fixed
+ * descendants to anchor to the viewport.
+ */
 .animate-fade-in {
-  animation: fadeIn 0.35s ease-out forwards;
+  animation: fadeIn 0.35s ease-out;
 }
 
 @keyframes fadeIn {

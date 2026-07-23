@@ -1,4 +1,10 @@
-import { Component, AfterViewInit, OnDestroy } from "@angular/core";
+import {
+  Component,
+  AfterViewInit,
+  OnDestroy,
+  EventEmitter,
+  Output,
+} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -17,6 +23,7 @@ import {
   templateUrl: "./login.component.html",
 })
 export class LoginComponent implements AfterViewInit, OnDestroy {
+  @Output() switchMode = new EventEmitter<void>();
   errorMessage = "";
   form = this.fb.group({
     email: ["", [Validators.required, Validators.email]],
@@ -106,7 +113,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  navigateToSignup(): void {
-    this.router.navigate(["/signup"]);
+  switchToSignup(): void {
+    this.switchMode.emit();
   }
 }

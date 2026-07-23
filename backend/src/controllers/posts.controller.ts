@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as db from "../data";
+import { friendIds } from "../friends.data";
 
 export async function listPosts(
   req: Request,
@@ -26,8 +27,11 @@ export async function listPosts(
       date ??
       (typeof req.query.endDate === "string" ? req.query.endDate : undefined);
 
+    // The list surfaces the caller's own posts plus their accepted friends'.
+    // friendIds excludes the caller, so prepend req.userId to include own posts.
+    const ids = await friendIds(req.userId!);
     const { data, total } = await db.getPaginatedPosts(
-      req.userId!,
+      [req.userId!, ...ids],
       page,
       limit,
       {

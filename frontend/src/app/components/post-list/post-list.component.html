@@ -12,269 +12,80 @@
         Read and share ideas, updates, and articles from our community.
       </p>
     </div>
-    <div
-      class="text-xs font-semibold text-slate-400 bg-slate-100 rounded-lg px-2.5 py-1 self-start md:self-auto"
-    >
-      {{ totalPosts }} {{ totalPosts === 1 ? "post" : "posts" }} available
-    </div>
   </div>
 
   <!-- Filter bar -->
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
-    <div class="flex-1">
-      <label class="block text-xs font-semibold text-slate-500 mb-1"
-        >Search title</label
-      >
-      <input
-        type="text"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="onSearchChange()"
-        placeholder="Search posts by title…"
-        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-      />
-    </div>
-    <div>
-      <label class="block text-xs font-semibold text-slate-500 mb-1"
-        >From</label
-      >
-      <input
-        type="date"
-        [(ngModel)]="startDate"
-        (ngModelChange)="onDateChange()"
-        class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-      />
-    </div>
-    <div>
-      <label class="block text-xs font-semibold text-slate-500 mb-1">To</label>
-      <input
-        type="date"
-        [(ngModel)]="endDate"
-        (ngModelChange)="onDateChange()"
-        class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-      />
-    </div>
-    <button
-      *ngIf="hasActiveFilters"
-      (click)="clearFilters()"
-      class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
-    >
-      Clear
-    </button>
-  </div>
-
-  <!-- Loading State (Modern Skeleton Loaders) -->
-  <div *ngIf="loading" class="grid gap-6 md:grid-cols-2">
-    <div
-      *ngFor="let i of [1, 2, 3, 4]"
-      class="animate-pulse rounded-2xl border border-slate-200/80 bg-white p-6 space-y-4"
-    >
-      <div class="h-5 w-2/3 rounded-lg bg-slate-200"></div>
-      <div class="space-y-2">
-        <div class="h-4 w-full rounded-lg bg-slate-200"></div>
-        <div class="h-4 w-5/6 rounded-lg bg-slate-200"></div>
-      </div>
-      <div class="flex gap-2 pt-2">
-        <div class="h-8 w-16 rounded-lg bg-slate-200"></div>
-        <div class="h-8 w-16 rounded-lg bg-slate-200"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Error Alerts -->
-  <div
-    *ngIf="errorMessage"
-    class="rounded-2xl border border-red-100 bg-red-50 p-4 text-red-800 shadow-sm flex items-start gap-3"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke-width="2"
-      stroke="currentColor"
-      class="h-5 w-5 text-red-600 mt-0.5 shrink-0"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-      />
-    </svg>
-    <div>
-      <h4 class="font-semibold text-red-900">An error occurred</h4>
-      <p class="text-sm text-red-700 mt-0.5">{{ errorMessage }}</p>
-    </div>
-  </div>
-
-  <!-- Posts Grid -->
-  <div *ngIf="!loading && posts.length > 0" class="grid gap-6 md:grid-cols-2">
-    <article
-      *ngFor="let post of posts"
-      class="group relative flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300"
-    >
-      <!-- Card Content -->
-      <div class="space-y-3">
-        <h3
-          class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2"
+  <div class="space-y-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+      <div class="flex-1">
+        <label class="block text-xs font-semibold text-slate-500 mb-1"
+          >Search title</label
         >
-          {{ post.title }}
-        </h3>
-        <p class="text-sm leading-relaxed text-slate-600 line-clamp-4">
-          {{ post.body }}
-        </p>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Search posts by title…"
+          class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        />
       </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 mb-1"
+          >From</label
+        >
+        <input
+          type="date"
+          [(ngModel)]="startDate"
+          (ngModelChange)="onDateChange()"
+          class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 mb-1"
+          >To</label
+        >
+        <input
+          type="date"
+          [(ngModel)]="endDate"
+          (ngModelChange)="onDateChange()"
+          class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        />
+      </div>
+      <button
+        *ngIf="hasActiveFilters"
+        (click)="clearFilters()"
+        class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+      >
+        Clear
+      </button>
+    </div>
 
-      <!-- Card Actions -->
+    <p *ngIf="invalidDateRange" class="mt-2 text-xs text-rose-600">
+      The “From” date is after the “To” date — no posts can match this range.
+    </p>
+
+    <!-- Loading State (Modern Skeleton Loaders) -->
+    <div *ngIf="loading" class="grid gap-6 md:grid-cols-2">
       <div
-        class="flex items-center justify-between border-t border-slate-100 mt-6 pt-4"
+        *ngFor="let i of [1, 2, 3, 4]"
+        class="animate-pulse rounded-2xl border border-slate-200/80 bg-white p-6 space-y-4"
       >
-        <!-- Post metadata (dates) -->
-        <div class="flex items-center gap-3 text-xs text-slate-400">
-          <span *ngIf="post.createdAt" class="flex items-center gap-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-              class="h-3.5 w-3.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-            {{ post.createdAt | date: "yyyy-MM-dd HH:mm" }}
-          </span>
-          <span
-            *ngIf="post.updatedAt && post.updatedAt !== post.createdAt"
-            class="flex items-center gap-1 text-amber-500"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-              class="h-3.5 w-3.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-              />
-            </svg>
-            Edited {{ post.updatedAt | date: "yyyy-MM-dd HH:mm" }}
-          </span>
+        <div class="h-5 w-2/3 rounded-lg bg-slate-200"></div>
+        <div class="space-y-2">
+          <div class="h-4 w-full rounded-lg bg-slate-200"></div>
+          <div class="h-4 w-5/6 rounded-lg bg-slate-200"></div>
         </div>
-
-        <div class="flex gap-2">
-          <!-- Edit button -->
-          <button
-            (click)="openEditModal(post.id)"
-            class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors focus-visible:outline-2 focus-visible:outline-indigo-600"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-              class="h-3.5 w-3.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.83 20.013a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-              />
-            </svg>
-            Edit
-          </button>
-
-          <!-- Delete button -->
-          <button
-            (click)="deletePost(post.id)"
-            class="inline-flex items-center gap-1 rounded-lg border border-transparent bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 hover:text-red-950 transition-colors focus-visible:outline-2 focus-visible:outline-red-600"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-              class="h-3.5 w-3.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-              />
-            </svg>
-            Delete
-          </button>
+        <div class="flex gap-2 pt-2">
+          <div class="h-8 w-16 rounded-lg bg-slate-200"></div>
+          <div class="h-8 w-16 rounded-lg bg-slate-200"></div>
         </div>
       </div>
-    </article>
-  </div>
+    </div>
 
-  <!-- Pagination -->
-  <nav
-    *ngIf="!loading && totalPages > 1"
-    class="flex items-center justify-center gap-2 pt-4"
-    aria-label="Pagination"
-  >
-    <button
-      (click)="prevPage()"
-      [disabled]="currentPage === 1"
-      class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-4 w-4"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M15 19l-7-7 7-7"
-        />
-      </svg>
-      Previous
-    </button>
-
-    <span class="px-3 py-2 text-sm text-slate-500">
-      Page {{ currentPage }} of {{ totalPages }}
-    </span>
-
-    <button
-      (click)="nextPage()"
-      [disabled]="currentPage === totalPages"
-      class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-    >
-      Next
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-4 w-4"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-      </svg>
-    </button>
-  </nav>
-
-  <!-- Empty State -->
-  <div
-    *ngIf="!loading && posts.length === 0 && !errorMessage && !hasActiveFilters"
-    class="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center shadow-sm"
-  >
+    <!-- Error Alerts -->
     <div
-      class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400"
+      *ngIf="errorMessage"
+      class="rounded-2xl border border-red-100 bg-red-50 p-4 text-red-800 shadow-sm flex items-start gap-3"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -282,24 +93,211 @@
         viewBox="0 0 24 24"
         stroke-width="2"
         stroke="currentColor"
-        class="h-6 w-6"
+        class="h-5 w-5 text-red-600 mt-0.5 shrink-0"
       >
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
-          d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
         />
+      </svg>
+      <div>
+        <h4 class="font-semibold text-red-900">An error occurred</h4>
+        <p class="text-sm text-red-700 mt-0.5">{{ errorMessage }}</p>
+      </div>
+    </div>
+
+    <!-- Posts Grid -->
+    <div *ngIf="!loading && posts.length > 0" class="space-y-6">
+      <article
+        *ngFor="let post of posts"
+        [id]="'post-' + post.id"
+        class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm"
+      >
+        <!-- Author + Content -->
+        <div class="space-y-3">
+          <div
+            class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div class="flex min-w-0 items-center gap-2">
+              <span
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700"
+              >
+                {{ post.author.name.charAt(0).toUpperCase() }}
+              </span>
+              <div class="flex min-w-0 flex-col">
+                <span class="truncate text-sm font-semibold text-slate-700">{{
+                  post.author.name
+                }}</span>
+                <span *ngIf="post.createdAt" class="text-xs text-slate-400">
+                  {{ post.createdAt | date: "yyyy-MM-dd HH:mm" }}
+                  <span
+                    *ngIf="post.updatedAt && post.updatedAt !== post.createdAt"
+                    class="text-amber-500"
+                  >
+                    · edited
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Owner actions -->
+            <div *ngIf="isOwn(post)" class="flex shrink-0 gap-2">
+              <button
+                (click)="openEditModal(post.id)"
+                class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors focus-visible:outline-2 focus-visible:outline-indigo-600"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  class="h-3.5 w-3.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.83 20.013a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+                  />
+                </svg>
+                Edit
+              </button>
+
+              <button
+                (click)="deletePost(post.id)"
+                class="inline-flex items-center gap-1 rounded-lg border border-transparent bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 hover:text-red-950 transition-colors focus-visible:outline-2 focus-visible:outline-red-600"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  class="h-3.5 w-3.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                  />
+                </svg>
+                Delete
+              </button>
+            </div>
+          </div>
+
+          <h3 class="text-lg font-bold text-slate-900">{{ post.title }}</h3>
+          <p class="text-sm leading-relaxed text-slate-600 whitespace-pre-line">
+            {{ post.body }}
+          </p>
+        </div>
+
+        <!-- Comments toggle -->
+        <div class="border-t border-slate-100 mt-6 pt-4">
+          <button
+            (click)="toggleComments(post.id)"
+            class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-indigo-600 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              class="h-4 w-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"
+              />
+            </svg>
+            {{ expanded.has(post.id) ? "Hide comments" : "Comments" }}
+          </button>
+
+          <!-- Comment thread -->
+          <div *ngIf="expanded.has(post.id)" class="mt-4 space-y-3">
+            <p *ngIf="commentErrors[post.id]" class="text-xs text-rose-600">
+              {{ commentErrors[post.id] }}
+            </p>
+
+            <p
+              *ngIf="topLevel(post.id).length === 0"
+              class="text-xs text-slate-400"
+            >
+              No comments yet. Be the first to reply.
+            </p>
+
+            <ul class="space-y-2">
+              <li *ngFor="let comment of topLevel(post.id)">
+                <!-- Top-level comment -->
+                <ng-container
+                  *ngTemplateOutlet="
+                    commentBlock;
+                    context: { post: post, comment: comment, depth: 0 }
+                  "
+                ></ng-container>
+              </li>
+            </ul>
+
+            <!-- Add top-level comment -->
+            <div class="flex items-start gap-2 pt-1">
+              <textarea
+                [(ngModel)]="commentDrafts[post.id]"
+                rows="2"
+                placeholder="Write a comment…"
+                class="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              ></textarea>
+              <button
+                (click)="submitComment(post.id)"
+                [disabled]="isSubmitting(post.id)"
+                class="shrink-0 rounded-xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 transition-colors"
+              >
+                Post
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Infinite-scroll sentinel: observed by IntersectionObserver -->
+    <div #scrollSentinel class="h-1"></div>
+
+    <!-- Loading-more indicator -->
+    <div *ngIf="loadingMore" class="flex justify-center py-4">
+      <svg
+        class="h-6 w-6 animate-spin text-indigo-500"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8H4z"
+        ></path>
       </svg>
     </div>
-    <h3 class="mt-4 text-base font-semibold text-slate-900">No posts yet</h3>
-    <p class="mt-2 text-sm text-slate-500 max-w-sm mx-auto">
-      Be the first to share something with our community! Create a new post to
-      get started.
-    </p>
-    <div class="mt-6">
-      <button
-        (click)="openCreateModal()"
-        class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"
+
+    <!-- Empty State -->
+    <div
+      *ngIf="
+        !loading && posts.length === 0 && !errorMessage && !hasActiveFilters
+      "
+      class="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center shadow-sm"
+    >
+      <div
+        class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -307,53 +305,289 @@
           viewBox="0 0 24 24"
           stroke-width="2"
           stroke="currentColor"
-          class="h-4.5 w-4.5"
+          class="h-6 w-6"
         >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
-            d="M12 4.5v15m7.5-7.5h-15"
+            d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
           />
         </svg>
-        <span>Write your first post</span>
-      </button>
+      </div>
+      <h3 class="mt-4 text-base font-semibold text-slate-900">No posts yet</h3>
+      <p class="mt-2 text-sm text-slate-500 max-w-sm mx-auto">
+        Be the first to share something with our community! Create a new post to
+        get started.
+      </p>
+      <div class="mt-6">
+        <button
+          (click)="openCreateModal()"
+          class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            class="h-4.5 w-4.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
+          <span>Write your first post</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- No results for active filters -->
+    <div
+      *ngIf="
+        !loading && posts.length === 0 && !errorMessage && hasActiveFilters
+      "
+      class="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center shadow-sm"
+    >
+      <h3 class="mt-4 text-base font-semibold text-slate-900">
+        No posts found
+      </h3>
+      <p class="mt-2 text-sm text-slate-500 max-w-sm mx-auto">
+        No posts match your search or date filter. Try a different keyword or
+        clear the filters.
+      </p>
+      <div class="mt-6">
+        <button
+          (click)="clearFilters()"
+          class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors cursor-pointer"
+        >
+          Clear filters
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- No results for active filters -->
-  <div
-    *ngIf="!loading && posts.length === 0 && !errorMessage && hasActiveFilters"
-    class="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center shadow-sm"
+  <app-modal [isOpen]="showCreateModal" (closed)="onCreateCancelled()">
+    <app-post-form
+      [embedded]="true"
+      (saved)="onPostCreated()"
+      (cancelled)="onCreateCancelled()"
+    ></app-post-form>
+  </app-modal>
+
+  <app-modal [isOpen]="showEditModal" (closed)="onEditCancelled()">
+    <app-post-form
+      [embedded]="true"
+      [editPostId]="editingPostId"
+      (saved)="onPostUpdated()"
+      (cancelled)="onEditCancelled()"
+    ></app-post-form>
+  </app-modal>
+
+  <!-- Confirmation dialog for destructive actions (delete post / comment) -->
+  <app-modal [isOpen]="!!confirmState" (closed)="closeConfirm()">
+    <div
+      *ngIf="confirmState"
+      class="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+    >
+      <div class="flex items-start gap-4">
+        <div
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            class="h-5 w-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+            />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-base font-bold text-slate-900">
+            {{ confirmState.title }}
+          </h3>
+          <p class="mt-1 text-sm leading-relaxed text-slate-600">
+            {{ confirmState.message }}
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-3">
+        <button
+          (click)="closeConfirm()"
+          [disabled]="confirmBusy"
+          class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="confirmAction()"
+          [disabled]="confirmBusy"
+          class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-70 transition-colors"
+        >
+          <svg
+            *ngIf="confirmBusy"
+            class="h-4 w-4 animate-spin"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v8H4z"
+            ></path>
+          </svg>
+          {{ confirmState.confirmLabel }}
+        </button>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- One comment (top-level or reply): body/edit form, actions, reply form. -->
+  <ng-template
+    #commentBlock
+    let-post="post"
+    let-comment="comment"
+    let-depth="depth"
   >
-    <h3 class="mt-4 text-base font-semibold text-slate-900">No posts found</h3>
-    <p class="mt-2 text-sm text-slate-500 max-w-sm mx-auto">
-      No posts match your search or date filter. Try a different keyword or
-      clear the filters.
-    </p>
-    <div class="mt-6">
-      <button
-        (click)="clearFilters()"
-        class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors cursor-pointer"
+    <div
+      [id]="'comment-' + comment.id"
+      class="rounded-xl bg-slate-50 px-3 py-2"
+      [class.ring-2]="highlightedCommentId === comment.id"
+      [class.ring-indigo-400]="highlightedCommentId === comment.id"
+      [class.rounded-xl]="highlightedCommentId === comment.id"
+    >
+      <div class="flex items-start justify-between gap-2">
+        <p class="text-xs font-semibold text-slate-700">
+          {{ comment.author.name }}
+        </p>
+
+        <div class="flex shrink-0 gap-2">
+          <button
+            *ngIf="!replyingTo.has(comment.id)"
+            (click)="startReply(comment)"
+            class="text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors"
+          >
+            Reply
+          </button>
+          <button
+            *ngIf="isOwnComment(comment) && !editingComment.has(comment.id)"
+            (click)="startEdit(comment)"
+            class="text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            *ngIf="isOwnComment(comment) && !editingComment.has(comment.id)"
+            (click)="deleteComment(post.id, comment.id)"
+            class="text-xs font-semibold text-rose-500 hover:text-rose-700 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <!-- Read view -->
+      <p
+        *ngIf="!editingComment.has(comment.id)"
+        class="text-sm text-slate-600 whitespace-pre-line"
       >
-        Clear filters
-      </button>
+        {{ comment.body }}
+      </p>
+
+      <!-- Inline edit form -->
+      <div
+        *ngIf="editingComment.has(comment.id)"
+        class="mt-1 flex items-start gap-2"
+      >
+        <textarea
+          [(ngModel)]="editDrafts[comment.id]"
+          rows="2"
+          class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        ></textarea>
+        <div class="flex shrink-0 flex-col gap-1">
+          <button
+            (click)="saveEdit(post.id, comment.id)"
+            class="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors"
+          >
+            Save
+          </button>
+          <button
+            (click)="cancelEdit(comment.id)"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Inline reply form -->
+      <div
+        *ngIf="replyingTo.has(comment.id)"
+        class="mt-2 flex items-start gap-2"
+      >
+        <textarea
+          [(ngModel)]="replyDrafts[comment.id]"
+          rows="2"
+          placeholder="Write a reply…"
+          class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        ></textarea>
+        <div class="flex shrink-0 flex-col gap-1">
+          <button
+            (click)="submitReply(post.id, comment.id)"
+            class="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors"
+          >
+            Reply
+          </button>
+          <button
+            (click)="cancelReply(comment.id)"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <p
+        *ngIf="commentActionError[comment.id]"
+        class="mt-1 text-xs text-rose-600"
+      >
+        {{ commentActionError[comment.id] }}
+      </p>
     </div>
-  </div>
+
+    <!-- Replies recurse so users can reply to replies at any depth. -->
+    <ul
+      *ngIf="repliesFor(post.id, comment.id).length"
+      class="mt-2 space-y-2 border-l border-slate-200 pl-3"
+      [class.ml-6]="depth < 4"
+      [class.ml-2]="depth >= 4"
+    >
+      <li *ngFor="let reply of repliesFor(post.id, comment.id)">
+        <ng-container
+          *ngTemplateOutlet="
+            commentBlock;
+            context: { post: post, comment: reply, depth: depth + 1 }
+          "
+        ></ng-container>
+      </li>
+    </ul>
+  </ng-template>
 </div>
-
-<app-modal [isOpen]="showCreateModal" (closed)="onCreateCancelled()">
-  <app-post-form
-    [embedded]="true"
-    (saved)="onPostCreated()"
-    (cancelled)="onCreateCancelled()"
-  ></app-post-form>
-</app-modal>
-
-<app-modal [isOpen]="showEditModal" (closed)="onEditCancelled()">
-  <app-post-form
-    [embedded]="true"
-    [editPostId]="editingPostId"
-    (saved)="onPostUpdated()"
-    (cancelled)="onEditCancelled()"
-  ></app-post-form>
-</app-modal>
