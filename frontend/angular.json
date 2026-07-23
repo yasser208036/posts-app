@@ -15,14 +15,35 @@
             "index": "src/index.html",
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.json",
-            "assets": [],
+            "assets": [
+              {
+                "glob": "_redirects",
+                "input": "public",
+                "output": "/"
+              }
+            ],
             "styles": ["src/styles.css"],
             "polyfills": ["zone.js"]
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
+            }
           }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": { "buildTarget": "posts-frontend:build" }
+          "options": { "buildTarget": "posts-frontend:build" },
+          "configurations": {
+            "production": {
+              "buildTarget": "posts-frontend:build:production"
+            }
+          }
         }
       }
     }
